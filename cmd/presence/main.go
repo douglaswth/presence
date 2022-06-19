@@ -5,14 +5,15 @@ import (
 	"log"
 	"os"
 
+	"douglasthrift.net/presence"
 	"douglasthrift.net/presence/neighbors"
 )
 
 func main() {
-	ifs := map[string]bool{os.Args[1]: true}
-	hws := make(map[string]bool, len(os.Args[2:]))
+	ifs := neighbors.Interfaces{os.Args[1]: true}
+	hws := make(neighbors.HardwareAddrStates, len(os.Args[2:]))
 	for _, hw := range os.Args[2:] {
-		hws[hw] = true
+		hws[hw] = presence.NewState()
 	}
 
 	ctx := context.Background()
@@ -25,5 +26,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(ok)
+	log.Printf("present=%v", ok)
+	for hw, state := range hws {
+		log.Printf("%v present=%v changed=%v", hw, state.Present(), state.Changed())
+	}
 }

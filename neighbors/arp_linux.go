@@ -34,7 +34,12 @@ func NewARP(count uint) (ARP, error) {
 	return &arp{cmd: cmd, arping: arping}, nil
 }
 
-func (a *arp) Present(ctx context.Context, ifs map[string]bool, hws map[string]bool) (ok bool, err error) {
+func (a *arp) Present(ctx context.Context, ifs Interfaces, hws HardwareAddrStates) (present bool, err error) {
+	as := make(map[string]bool, len(hws))
+	for hw := range hws {
+		as[hw] = false
+	}
+
 	cmd := exec.CommandContext(ctx, a.cmd, "-family", "inet", "-json", "neighbor", "show", "nud", "reachable")
 	b, err := cmd.Output()
 	if err != nil {
@@ -53,12 +58,20 @@ func (a *arp) Present(ctx context.Context, ifs map[string]bool, hws map[string]b
 			}
 			hw := hwa.String()
 
-			if hws[hw] {
+			if _, ok := as[hw]; ok {
 				ok, err = a.arping.Ping(ctx, e.Interface, hw, e.IPAddress)
-				if ok || err != nil {
+				if err != nil {
 					return
 				}
+				as[hw] = ok
 			}
+		}
+	}
+
+	for hw, ok := range as {
+		hws[hw].Set(ok)
+		if ok {
+			present = true
 		}
 	}
 
