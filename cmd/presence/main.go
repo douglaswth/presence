@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"runtime"
 
 	"github.com/alecthomas/kong"
+	"goa.design/clue/log"
 )
 
 type (
 	CLI struct {
+		Debug   bool             `help:"Show debug information in log." short:"d"`
 		Version kong.VersionFlag `help:"Show version information." short:"v"`
 
 		Detect Detect `cmd:"" help:"Detect network presence and push state changes to IFTTT."`
@@ -33,4 +36,14 @@ func main() {
 	)
 	err := ctx.Run(cli)
 	ctx.FatalIfErrorf(err)
+}
+
+func (cli *CLI) Context() (ctx context.Context) {
+	ctx = context.Background()
+	if cli.Debug {
+		ctx = log.Context(ctx, log.WithDebug())
+	} else {
+		ctx = log.Context(ctx)
+	}
+	return
 }

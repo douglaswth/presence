@@ -1,4 +1,4 @@
-package presence
+package neighbors
 
 import (
 	"bufio"
@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
+
+	"goa.design/clue/log"
 )
 
 type (
@@ -61,6 +63,7 @@ func NewARPing(count uint) (ARPing, error) {
 
 func (a *arping) Ping(ctx context.Context, ifi, hw, ip string) (ok bool, err error) {
 	cmd := exec.CommandContext(ctx, a.sudoCmd, a.arpingCmd, "-c", a.count, "-i", ifi, "-t", hw, "-q", ip)
+	log.Debug(ctx, log.KV{K: "cmd", V: cmd})
 	err = cmd.Run()
 	if err == nil {
 		ok = true

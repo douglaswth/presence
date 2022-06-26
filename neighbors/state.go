@@ -1,4 +1,4 @@
-package presence
+package neighbors
 
 type (
 	State interface {

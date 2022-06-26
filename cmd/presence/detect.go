@@ -1,11 +1,9 @@
 package main
 
 import (
-	"context"
-
 	"goa.design/clue/log"
 
-	"douglasthrift.net/presence"
+	"douglasthrift.net/presence/neighbors"
 )
 
 type (
@@ -16,14 +14,15 @@ type (
 )
 
 func (d *Detect) Run(cli *CLI) error {
-	ifs := presence.Interfaces{d.Interface: true}
-	hws := make(presence.HardwareAddrStates, len(d.HardwareAddrs))
+	ctx := cli.Context()
+
+	ifs := neighbors.Interfaces{d.Interface: true}
+	hws := make(neighbors.HardwareAddrStates, len(d.HardwareAddrs))
 	for _, hw := range d.HardwareAddrs {
-		hws[hw] = presence.NewState()
+		hws[hw] = neighbors.NewState()
 	}
 
-	ctx := log.Context(context.Background(), log.WithDisableBuffering(func(context.Context) bool { return true }))
-	a, err := presence.NewARP(1)
+	a, err := neighbors.NewARP(1)
 	if err != nil {
 		return err
 	}

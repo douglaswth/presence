@@ -1,10 +1,17 @@
-package presence
+package neighbors
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net"
 	"os/exec"
+
+	"goa.design/clue/log"
+)
+
+const (
+	arpOutputVersion = "1"
 )
 
 type (
@@ -13,15 +20,22 @@ type (
 		arping ARPing
 	}
 
+	arpOutput struct {
+		Version string `json:"__version"`
+		ARP     struct {
+			Cache []arpEntry `json:"arp-cache"`
+		} `json:"arp"`
+	}
+
 	arpEntry struct {
-		IPAddress  string `json:"dst"`
-		MACAddress string `json:"lladdr"`
-		Interface  string `json:"dev"`
+		IPAddress  string `json:"ip-address"`
+		MACAddress string `json:"mac-address"`
+		Interface  string `json:"interface"`
 	}
 )
 
 func NewARP(count uint) (ARP, error) {
-	cmd, err := exec.LookPath("ip")
+	cmd, err := exec.LookPath("arp")
 	if err != nil {
 		return nil, err
 	}
@@ -40,16 +54,25 @@ func (a *arp) Present(ctx context.Context, ifs Interfaces, hws HardwareAddrState
 		as[hw] = false
 	}
 
-	cmd := exec.CommandContext(ctx, a.cmd, "-family", "inet", "-json", "neighbor", "show", "nud", "reachable")
+	cmd := exec.CommandContext(ctx, a.cmd, "--libxo=json", "-an")
+	log.Debug(ctx, log.KV{K: "cmd", V: cmd})
 	b, err := cmd.Output()
 	if err != nil {
 		return
 	}
 
-	var es []arpEntry
-	err = json.Unmarshal(b, &es)
+	o := &arpOutput{}
+	err = json.Unmarshal(b, o)
+	if err != nil {
+		return
+	}
 
-	for _, e := range es {
+	if o.Version != arpOutputVersion {
+		err = fmt.Errorf("arp output version mismatch (got %v, expected %v)", o.Version, arpOutputVersion)
+		return
+	}
+
+	for _, e := range o.ARP.Cache {
 		if ifs[e.Interface] {
 			var hwa net.HardwareAddr
 			hwa, err = net.ParseMAC(e.MACAddress)
