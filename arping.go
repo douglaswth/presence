@@ -1,4 +1,4 @@
-package neighbors
+package presence
 
 import (
 	"bufio"
