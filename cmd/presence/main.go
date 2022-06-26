@@ -1,32 +1,36 @@
 package main
 
 import (
-	"context"
-	"log"
-	"os"
+	"fmt"
+	"runtime"
 
-	"douglasthrift.net/presence"
+	"github.com/alecthomas/kong"
+)
+
+type (
+	CLI struct {
+		Version kong.VersionFlag `help:"Show version information." short:"v"`
+
+		Detect Detect `cmd:"" help:"Detect network presence and push state changes to IFTTT."`
+		Check  Check  `cmd:"" help:"Check configuration."`
+	}
+)
+
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
 func main() {
-	ifs := presence.Interfaces{os.Args[1]: true}
-	hws := make(presence.HardwareAddrStates, len(os.Args[2:]))
-	for _, hw := range os.Args[2:] {
-		hws[hw] = presence.NewState()
-	}
-
-	ctx := context.Background()
-	a, err := presence.NewARP(1)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ok, err := a.Present(ctx, ifs, hws)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("present=%v", ok)
-	for hw, state := range hws {
-		log.Printf("%v present=%v changed=%v", hw, state.Present(), state.Changed())
-	}
+	cli := &CLI{}
+	ctx := kong.Parse(
+		cli,
+		kong.Description("Home network presence detection daemon for IFTTT"), kong.UsageOnError(),
+		kong.Vars{
+			"version": fmt.Sprintf("presence version %v %v %v/%v %v %v", version, runtime.Version(), runtime.GOOS, runtime.GOARCH, commit, date),
+		},
+	)
+	err := ctx.Run(cli)
+	ctx.FatalIfErrorf(err)
 }
