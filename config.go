@@ -1,6 +1,7 @@
 package presence
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"time"
@@ -36,6 +37,9 @@ func ParseConfig(name string) (*Config, error) {
 		return nil, err
 	}
 
+	if c.Interval < 0 {
+		return nil, fmt.Errorf("negative interval (%v)", c.Interval)
+	}
 	if c.Interval == 0 {
 		c.Interval = 30 * time.Second
 	}

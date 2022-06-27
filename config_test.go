@@ -54,6 +54,11 @@ func TestParseConfig(t *testing.T) {
 			file: "bad_mac_encoding.yml",
 			err:  "address 00-00-00-00-00-0x: invalid MAC address",
 		},
+		{
+			name: "negative interval",
+			file: "negative_interval.yml",
+			err:  "negative interval (-1ns)",
+		},
 	}
 
 	for _, tc := range cases {
