@@ -1,5 +1,6 @@
 interval: 1m
+interfaces: [eth0, eth1]
 mac_addresses:
   - 00:00:00:00:00:0a
-  - 00:00:00:00:00:0b
+  - 00-00-00-00-00-0b
 ping_count: 5

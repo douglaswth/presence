@@ -15,6 +15,7 @@ import (
 type (
 	ARPing interface {
 		Ping(ctx context.Context, ifi, hw, ip string) (bool, error)
+		Count(count uint)
 	}
 
 	arping struct {
@@ -58,7 +59,11 @@ func NewARPing(count uint) (ARPing, error) {
 		return nil, err
 	}
 
-	return &arping{arpingCmd: arpingCmd, sudoCmd: sudoCmd, count: fmt.Sprint(count)}, nil
+	return &arping{
+		arpingCmd: arpingCmd,
+		sudoCmd:   sudoCmd,
+		count:     fmt.Sprint(count),
+	}, nil
 }
 
 func (a *arping) Ping(ctx context.Context, ifi, hw, ip string) (ok bool, err error) {
@@ -71,8 +76,15 @@ func (a *arping) Ping(ctx context.Context, ifi, hw, ip string) (ok bool, err err
 		var exitError *exec.ExitError
 		if errors.As(err, &exitError) && len(exitError.Stderr) == 0 {
 			err = nil
+		} else {
+			return
 		}
 	}
+	log.Debug(ctx, log.KV{K: "cmd", V: cmd}, log.KV{K: "ok", V: ok})
 
 	return
+}
+
+func (a *arping) Count(count uint) {
+	a.count = fmt.Sprint(count)
 }

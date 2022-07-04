@@ -45,12 +45,15 @@ func NewARP(count uint) (ARP, error) {
 		return nil, err
 	}
 
-	return &arp{cmd: cmd, arping: arping}, nil
+	return &arp{
+		cmd:    cmd,
+		arping: arping,
+	}, nil
 }
 
-func (a *arp) Present(ctx context.Context, ifs Interfaces, hws HardwareAddrStates) (present bool, err error) {
-	as := make(map[string]bool, len(hws))
-	for hw := range hws {
+func (a *arp) Present(ctx context.Context, ifs Interfaces, state State, addrStates HardwareAddrStates) (err error) {
+	as := make(map[string]bool, len(addrStates))
+	for hw := range addrStates {
 		as[hw] = false
 	}
 
@@ -73,6 +76,7 @@ func (a *arp) Present(ctx context.Context, ifs Interfaces, hws HardwareAddrState
 	}
 
 	for _, e := range o.ARP.Cache {
+		log.Debug(ctx, log.KV{K: "IP address", V: e.IPAddress}, log.KV{K: "MAC address", V: e.MACAddress}, log.KV{K: "interface", V: e.Interface})
 		if ifs[e.Interface] {
 			var hwa net.HardwareAddr
 			hwa, err = net.ParseMAC(e.MACAddress)
@@ -91,12 +95,18 @@ func (a *arp) Present(ctx context.Context, ifs Interfaces, hws HardwareAddrState
 		}
 	}
 
+	present := false
 	for hw, ok := range as {
-		hws[hw].Set(ok)
+		addrStates[hw].Set(ok)
 		if ok {
 			present = true
 		}
 	}
+	state.Set(present)
 
 	return
+}
+
+func (a *arp) Count(count uint) {
+	a.arping.Count(count)
 }

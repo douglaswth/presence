@@ -8,6 +8,8 @@ import (
 
 	"github.com/alecthomas/kong"
 	"goa.design/clue/log"
+
+	"douglasthrift.net/presence/wrap"
 )
 
 type (
@@ -26,6 +28,7 @@ var (
 	commit       = "none"
 	date         = "unknown"
 	configPrefix = ""
+	wNet         = wrap.NewNet()
 )
 
 func main() {
@@ -47,7 +50,7 @@ func (cli *CLI) Context() (ctx context.Context) {
 	if cli.Debug {
 		ctx = log.Context(ctx, log.WithDebug())
 	} else {
-		ctx = log.Context(ctx, log.WithDisableBuffering(func(context.Context) bool { return true }))
+		ctx = log.Context(ctx)
 	}
 	return
 }
