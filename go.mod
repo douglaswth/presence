@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/alecthomas/kong v0.6.1
+	github.com/magefile/mage v1.13.0
 	github.com/stretchr/testify v1.7.5
 	goa.design/clue v0.7.0
 	gopkg.in/yaml.v3 v3.0.1
