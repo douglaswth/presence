@@ -52,5 +52,13 @@ func (cli *CLI) Context() (ctx context.Context) {
 	} else {
 		ctx = log.Context(ctx)
 	}
+	log.Print(ctx,
+		log.KV{K: "presence version", V: version},
+		log.KV{K: "go version", V: runtime.Version()},
+		log.KV{K: "os", V: runtime.GOOS},
+		log.KV{K: "arch", V: runtime.GOARCH},
+		log.KV{K: "commit", V: commit},
+		log.KV{K: "date", V: date},
+	)
 	return
 }
