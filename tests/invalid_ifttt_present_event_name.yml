@@ -1,0 +1,7 @@
+interfaces: [eth0]
+mac_addresses:
+  - 00:00:00:00:00:12
+ifttt:
+  key: abcdef123456
+  events:
+    present: $

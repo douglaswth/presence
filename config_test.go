@@ -31,6 +31,14 @@ func TestParseConfig(t *testing.T) {
 				Interfaces:   []string{"eth0", "eth1"},
 				MACAddresses: []string{"00:00:00:00:00:0a", "00:00:00:00:00:0b"},
 				PingCount:    5,
+				IFTTT: IFTTT{
+					BaseURL: "https://example.com",
+					Key:     "abcdef123456",
+					Events: Events{
+						Present: "event_presence_detected",
+						Absent:  "event_absence_detected",
+					},
+				},
 			},
 		},
 		{
@@ -44,6 +52,14 @@ func TestParseConfig(t *testing.T) {
 				Interfaces:   []string{"eth0", "eth1", "lo"},
 				MACAddresses: []string{"00:00:00:00:00:01", "00:00:00:00:00:02"},
 				PingCount:    1,
+				IFTTT: IFTTT{
+					BaseURL: defaultBaseURL,
+					Key:     "xyz7890!@#",
+					Events: Events{
+						Present: defaultPresentEvent,
+						Absent:  defaultAbsentEvent,
+					},
+				},
 			},
 		},
 		{
@@ -100,6 +116,38 @@ func TestParseConfig(t *testing.T) {
 				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
 			},
 			err: "duplicate MAC address (00:00:00:00:00:0e)",
+		},
+		{
+			name: "invalid IFTTT base URL",
+			file: "invalid_ifttt_base_url.yml",
+			setup: func(wNet *mockwrap.Net) {
+				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			},
+			err: `IFTTT base URL: parse "%": invalid URL escape "%"`,
+		},
+		{
+			name: "no IFTTT key",
+			file: "no_ifttt_key.yml",
+			setup: func(wNet *mockwrap.Net) {
+				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			},
+			err: "no IFTTT key",
+		},
+		{
+			name: "invalid IFTTT present event name",
+			file: "invalid_ifttt_present_event_name.yml",
+			setup: func(wNet *mockwrap.Net) {
+				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			},
+			err: `invalid IFTTT present event name: "$"`,
+		},
+		{
+			name: "invalid IFTTT absent event name",
+			file: "invalid_ifttt_absent_event_name.yml",
+			setup: func(wNet *mockwrap.Net) {
+				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			},
+			err: `invalid IFTTT absent event name: "^"`,
 		},
 	}
 

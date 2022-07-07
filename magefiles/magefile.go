@@ -7,7 +7,7 @@ import (
 var (
 	Default = Build // nolint: deadcode
 
-	packagesToMock = []string{"neighbors", "wrap"}
+	packagesToMock = []string{"ifttt", "neighbors", "wrap"}
 )
 
 // Generate generates mock implementations of interfaces.

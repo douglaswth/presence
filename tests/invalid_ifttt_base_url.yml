@@ -1,0 +1,6 @@
+interfaces: [eth0]
+mac_addresses:
+  - 00:00:00:00:00:10
+ifttt:
+  base_url: "%"
+  key: abcdef123456

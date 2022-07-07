@@ -5,6 +5,7 @@ type (
 		Present() bool
 		Changed() bool
 		Set(present bool)
+		Reset()
 	}
 
 	state struct {
@@ -33,4 +34,8 @@ func (s *state) Set(present bool) {
 		s.was = s.present
 		s.present = present
 	}
+}
+
+func (s *state) Reset() {
+	s.initial = true
 }

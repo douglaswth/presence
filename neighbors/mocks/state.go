@@ -37,6 +37,11 @@ func (_m *State) Present() bool {
 	return r0
 }
 
+// Reset provides a mock function with given fields:
+func (_m *State) Reset() {
+	_m.Called()
+}
+
 // Set provides a mock function with given fields: present
 func (_m *State) Set(present bool) {
 	_m.Called(present)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,6 +10,7 @@ import (
 	"goa.design/clue/log"
 
 	"douglasthrift.net/presence"
+	"douglasthrift.net/presence/ifttt"
 	"douglasthrift.net/presence/neighbors"
 )
 
@@ -30,8 +32,13 @@ func (d *Detect) Run(cli *CLI) error {
 		log.Fatal(ctx, err, log.KV{K: "msg", V: "error finding dependencies"})
 	}
 
+	client, err := ifttt.NewClient(http.DefaultClient, config.IFTTT.BaseURL, config.IFTTT.Key, config.IFTTT.Events.Present, config.IFTTT.Events.Absent, cli.Debug)
+	if err != nil {
+		log.Fatal(ctx, err, log.KV{K: "msg", V: "error creating IFTTT client"})
+	}
+
 	var (
-		detector = presence.NewDetector(config, arp)
+		detector = presence.NewDetector(config, arp, client)
 		ticker   = time.NewTicker(config.Interval)
 		stop     = make(chan os.Signal, 1)
 		reload   = make(chan os.Signal, 1)
@@ -79,9 +86,18 @@ func (d *Detect) Run(cli *CLI) error {
 			config, err = presence.ParseConfigWithContext(ctx, cli.Config, wNet)
 			if err != nil {
 				log.Error(ctx, err, log.KV{K: "msg", V: "error parsing config"}, log.KV{K: "config", V: cli.Config})
+			} else if client, err = ifttt.NewClient(http.DefaultClient, config.IFTTT.BaseURL, config.IFTTT.Key, config.IFTTT.Events.Present, config.IFTTT.Events.Absent, cli.Debug); err != nil {
+				log.Error(ctx, err, log.KV{K: "msg", V: "error creating IFTTT client"})
 			} else {
 				arp.Count(config.PingCount)
 				detector.Config(config)
+				detector.Client(client)
+
+				err = detector.Detect(ctx)
+				if err != nil {
+					log.Error(ctx, err, log.KV{K: "msg", V: "error detecting presence"})
+				}
+
 				ticker.Reset(config.Interval)
 			}
 		}

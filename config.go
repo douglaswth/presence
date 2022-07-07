@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 
 	"goa.design/clue/log"
@@ -19,7 +22,29 @@ type (
 		Interfaces   []string      `yaml:"interfaces"`
 		MACAddresses []string      `yaml:"mac_addresses"`
 		PingCount    uint          `yaml:"ping_count"`
+		IFTTT        IFTTT         `yaml:"ifttt"`
 	}
+
+	IFTTT struct {
+		BaseURL string `yaml:"base_url"`
+		Key     string `yaml:"key"`
+		Events  Events `yaml:"events"`
+	}
+
+	Events struct {
+		Present string `yaml:"present"`
+		Absent  string `yaml:"absent"`
+	}
+)
+
+const (
+	defaultBaseURL      = "https://maker.ifttt.com"
+	defaultPresentEvent = "presence_detected"
+	defaultAbsentEvent  = "absence_detected"
+)
+
+var (
+	eventName = regexp.MustCompile("^[_a-zA-Z]+$")
 )
 
 func ParseConfig(name string, wNet wrap.Net) (*Config, error) {
@@ -47,6 +72,7 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 	} else if c.Interval == 0 {
 		c.Interval = 30 * time.Second
 	}
+	log.Print(ctx, log.KV{K: "msg", V: "interval"}, log.KV{K: "value", V: c.Interval})
 
 	if len(c.Interfaces) == 0 {
 		ifs, err := wNet.Interfaces()
@@ -66,6 +92,7 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 			}
 		}
 	}
+	log.Print(ctx, log.KV{K: "msg", V: "interfaces"}, log.KV{K: "value", V: c.Interfaces})
 
 	if len(c.MACAddresses) == 0 {
 		return nil, fmt.Errorf("no MAC addresses")
@@ -84,15 +111,38 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 		as[a] = true
 		c.MACAddresses[i] = a
 	}
+	log.Print(ctx, log.KV{K: "msg", V: "MAC addresses"}, log.KV{K: "value", V: c.MACAddresses})
 
 	if c.PingCount == 0 {
 		c.PingCount = 1
 	}
-
-	log.Print(ctx, log.KV{K: "msg", V: "interval"}, log.KV{K: "value", V: c.Interval})
-	log.Print(ctx, log.KV{K: "msg", V: "interfaces"}, log.KV{K: "value", V: c.Interfaces})
-	log.Print(ctx, log.KV{K: "msg", V: "MAC addresses"}, log.KV{K: "value", V: c.MACAddresses})
 	log.Print(ctx, log.KV{K: "msg", V: "ping count"}, log.KV{K: "value", V: c.PingCount})
+
+	if c.IFTTT.BaseURL == "" {
+		c.IFTTT.BaseURL = defaultBaseURL
+	} else if _, err := url.Parse(c.IFTTT.BaseURL); err != nil {
+		return nil, fmt.Errorf("IFTTT base URL: %w", err)
+	}
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT base URL"}, log.KV{K: "value", V: c.IFTTT.BaseURL})
+
+	if c.IFTTT.Key == "" {
+		return nil, fmt.Errorf("no IFTTT key")
+	}
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT key"}, log.KV{K: "value", V: strings.Repeat("*", len(c.IFTTT.Key))})
+
+	if c.IFTTT.Events.Present == "" {
+		c.IFTTT.Events.Present = defaultPresentEvent
+	} else if !eventName.MatchString(c.IFTTT.Events.Present) {
+		return nil, fmt.Errorf("invalid IFTTT present event name: %#v", c.IFTTT.Events.Present)
+	}
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT present event"}, log.KV{K: "value", V: c.IFTTT.Events.Present})
+
+	if c.IFTTT.Events.Absent == "" {
+		c.IFTTT.Events.Absent = defaultAbsentEvent
+	} else if !eventName.MatchString(c.IFTTT.Events.Absent) {
+		return nil, fmt.Errorf("invalid IFTTT absent event name: %#v", c.IFTTT.Events.Absent)
+	}
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT absent event"}, log.KV{K: "value", V: c.IFTTT.Events.Absent})
 
 	return c, nil
 }

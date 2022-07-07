@@ -133,3 +133,9 @@ func TestState_Set(t *testing.T) {
 		})
 	}
 }
+
+func TestState_Reset(t *testing.T) {
+	s := &state{initial: false}
+	s.Reset()
+	assert.Equal(t, &state{initial: true}, s)
+}
