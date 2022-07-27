@@ -8,6 +8,10 @@ import (
 	"goa.design/clue/log"
 )
 
+const (
+	arpCmd = "ip"
+)
+
 type (
 	arpEntry struct {
 		IPAddress  string `json:"dst"`

@@ -24,7 +24,7 @@ type (
 )
 
 func NewARP(count uint) (ARP, error) {
-	cmd, err := exec.LookPath("ip")
+	cmd, err := exec.LookPath(arpCmd)
 	if err != nil {
 		return nil, err
 	}

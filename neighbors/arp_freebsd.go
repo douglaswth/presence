@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	arpCmd           = "arp"
 	arpOutputVersion = "1"
 )
 
