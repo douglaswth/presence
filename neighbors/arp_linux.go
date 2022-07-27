@@ -46,6 +46,11 @@ func (a *arp) Present(ctx context.Context, ifs Interfaces, state State, addrStat
 	}
 
 	cmd := exec.CommandContext(ctx, a.cmd, "-family", "inet", "-json", "neighbor", "show", "nud", "reachable")
+	if len(ifs) == 1 {
+		for ifi := range ifs {
+			cmd.Args = append(cmd.Args, "dev", ifi)
+		}
+	}
 	log.Debug(ctx, log.KV{K: "cmd", V: cmd})
 	b, err := cmd.Output()
 	if err != nil {

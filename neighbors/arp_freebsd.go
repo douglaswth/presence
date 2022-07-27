@@ -58,6 +58,11 @@ func (a *arp) Present(ctx context.Context, ifs Interfaces, state State, addrStat
 	}
 
 	cmd := exec.CommandContext(ctx, a.cmd, "--libxo=json", "-an")
+	if len(ifs) == 1 {
+		for ifi := range ifs {
+			cmd.Args = append(cmd.Args, "-i", ifi)
+		}
+	}
 	log.Debug(ctx, log.KV{K: "cmd", V: cmd})
 	b, err := cmd.Output()
 	if err != nil {
