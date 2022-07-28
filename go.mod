@@ -34,3 +34,5 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
+
+replace github.com/alecthomas/kong => github.com/pyqlsa/kong v0.6.2-0.20220728011226-6e064c7a2cb9
