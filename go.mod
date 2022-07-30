@@ -3,7 +3,7 @@ module douglasthrift.net/presence
 go 1.17
 
 require (
-	github.com/alecthomas/kong v0.6.1
+	github.com/alecthomas/kong v0.6.2-0.20220728061507-f48da244f543
 	github.com/magefile/mage v1.13.0
 	github.com/stretchr/testify v1.7.5
 	goa.design/clue v0.7.0
@@ -34,5 +34,3 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
-
-replace github.com/alecthomas/kong => github.com/pyqlsa/kong v0.6.2-0.20220728011226-6e064c7a2cb9
