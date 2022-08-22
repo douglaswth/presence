@@ -10,7 +10,8 @@ builds:
       - linux
     main: ./cmd/presence
 archives:
-  - wrap_in_directory: true
+  - format: tar.xz
+    wrap_in_directory: true
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.sha256"
 release:
