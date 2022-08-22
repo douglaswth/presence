@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"runtime"
 
 	"github.com/alecthomas/kong"
@@ -24,11 +23,10 @@ type (
 )
 
 var (
-	version      = "dev"
-	commit       = "none"
-	date         = "unknown"
-	configPrefix = ""
-	wNet         = wrap.NewNet()
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	wNet    = wrap.NewNet()
 )
 
 func main() {
@@ -37,7 +35,7 @@ func main() {
 		cli,
 		kong.Description("Home network presence detection daemon for IFTTT"), kong.UsageOnError(),
 		kong.Vars{
-			"config":  filepath.Join(configPrefix, "presence.yml"),
+			"config":  "presence.yml",
 			"version": fmt.Sprintf("presence version %v %v %v/%v %v %v", version, runtime.Version(), runtime.GOOS, runtime.GOARCH, commit, date),
 		},
 	)
