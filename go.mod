@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/alecthomas/kong v0.6.2-0.20220728061507-f48da244f543
-	github.com/magefile/mage v1.13.0
+	github.com/magefile/mage v1.14.0
 	github.com/stretchr/testify v1.8.0
 	goa.design/clue v0.11.0
 	goa.design/goa/v3 v3.8.5
