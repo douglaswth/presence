@@ -15,16 +15,22 @@ import (
 func TestParseConfig(t *testing.T) {
 	cases := []struct {
 		name, file string
-		setup      func(wNet *mockwrap.Net)
+		setup      func(t *testing.T, wNet *mockwrap.Net)
 		config     *Config
 		err        string
 	}{
 		{
 			name: "success",
 			file: "success.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
-				wNet.Mock.On("InterfaceByName", "eth1").Return(&net.Interface{}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return &net.Interface{}, nil
+				})
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth1", name)
+					return &net.Interface{}, nil
+				})
 			},
 			config: &Config{
 				Interval:     1 * time.Minute,
@@ -44,8 +50,10 @@ func TestParseConfig(t *testing.T) {
 		{
 			name: "defaults",
 			file: "defaults.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("Interfaces").Return([]net.Interface{{Name: "eth0"}, {Name: "eth1"}, {Name: "lo"}}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaces(func() ([]net.Interface, error) {
+					return []net.Interface{{Name: "eth0"}, {Name: "eth1"}, {Name: "lo"}}, nil
+				})
 			},
 			config: &Config{
 				Interval:     30 * time.Second,
@@ -75,8 +83,10 @@ func TestParseConfig(t *testing.T) {
 		{
 			name: "bad MAC encoding",
 			file: "bad_mac_encoding.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("Interfaces").Return([]net.Interface{{Name: "eth0"}, {Name: "eth1"}, {Name: "lo"}}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaces(func() ([]net.Interface, error) {
+					return []net.Interface{{Name: "eth0"}, {Name: "eth1"}, {Name: "lo"}}, nil
+				})
 			},
 			err: "address 00-00-00-00-00-0x: invalid MAC address",
 		},
@@ -88,64 +98,87 @@ func TestParseConfig(t *testing.T) {
 		{
 			name: "error listing interfaces",
 			file: "defaults.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("Interfaces").Return(nil, fmt.Errorf("no network interfaces"))
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaces(func() ([]net.Interface, error) {
+					return nil, fmt.Errorf("no network interfaces")
+				})
 			},
 			err: "no network interfaces",
 		},
 		{
 			name: "error getting interface by name",
 			file: "success.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(nil, fmt.Errorf("no such network interface"))
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return nil, fmt.Errorf("no such network interface")
+				})
 			},
 			err: "interface eth0: no such network interface",
 		},
 		{
 			name: "no MAC addresses",
 			file: "no_mac_addresses.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return &net.Interface{}, nil
+				})
 			},
 			err: "no MAC addresses",
 		},
 		{
 			name: "duplicate MAC address",
 			file: "duplicate_mac_address.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return &net.Interface{}, nil
+				})
 			},
 			err: "duplicate MAC address (00:00:00:00:00:0e)",
 		},
 		{
 			name: "invalid IFTTT base URL",
 			file: "invalid_ifttt_base_url.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return &net.Interface{}, nil
+				})
 			},
 			err: `IFTTT base URL: parse "%": invalid URL escape "%"`,
 		},
 		{
 			name: "no IFTTT key",
 			file: "no_ifttt_key.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return &net.Interface{}, nil
+				})
 			},
 			err: "no IFTTT key",
 		},
 		{
 			name: "invalid IFTTT present event name",
 			file: "invalid_ifttt_present_event_name.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return &net.Interface{}, nil
+				})
 			},
 			err: `invalid IFTTT present event name: "$"`,
 		},
 		{
 			name: "invalid IFTTT absent event name",
 			file: "invalid_ifttt_absent_event_name.yml",
-			setup: func(wNet *mockwrap.Net) {
-				wNet.Mock.On("InterfaceByName", "eth0").Return(&net.Interface{}, nil)
+			setup: func(t *testing.T, wNet *mockwrap.Net) {
+				wNet.AddInterfaceByName(func(name string) (*net.Interface, error) {
+					assert.Equal(t, "eth0", name)
+					return &net.Interface{}, nil
+				})
 			},
 			err: `invalid IFTTT absent event name: "^"`,
 		},
@@ -161,7 +194,7 @@ func TestParseConfig(t *testing.T) {
 
 			wNet := mockwrap.NewNet(t)
 			if tc.setup != nil {
-				tc.setup(wNet)
+				tc.setup(t, wNet)
 			}
 
 			c, err := ParseConfig(filepath.Join("tests", tc.file), wNet)
@@ -171,6 +204,8 @@ func TestParseConfig(t *testing.T) {
 				assert.NoError(err)
 				assert.Equal(tc.config, c)
 			}
+
+			assert.False(wNet.HasMore(), "missing expected net calls")
 		})
 	}
 }
