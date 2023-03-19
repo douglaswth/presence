@@ -1,6 +1,6 @@
 module douglasthrift.net/presence
 
-go 1.17
+go 1.20
 
 require (
 	github.com/alecthomas/kong v0.7.1
@@ -22,7 +22,6 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
 	go.opentelemetry.io/otel v1.13.0 // indirect
 	go.opentelemetry.io/otel/trace v1.13.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
