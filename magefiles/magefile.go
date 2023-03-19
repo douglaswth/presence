@@ -6,19 +6,11 @@ import (
 
 var (
 	Default = Build // nolint: deadcode
-
-	packagesToMock = []string{"ifttt", "neighbors", "wrap"}
 )
 
 // Generate generates mock implementations of interfaces.
 func Generate() (err error) { // nolint: deadcode
-	for _, pkg := range packagesToMock {
-		err = sh.Run("mockery", "--all", "--case=underscore", "--dir="+pkg, "--exported=false", "--output="+pkg+"/mocks")
-		if err != nil {
-			return
-		}
-	}
-	return
+	return sh.RunV("cmg", "gen", "./...")
 }
 
 // Build builds the binaries.
