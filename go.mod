@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/magefile/mage v1.15.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	goa.design/clue v0.17.1
 	goa.design/goa/v3 v3.11.3
 	gopkg.in/yaml.v3 v3.0.1
