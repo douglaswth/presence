@@ -3,7 +3,7 @@ module douglasthrift.net/presence
 go 1.20
 
 require (
-	github.com/alecthomas/kong v0.7.1
+	github.com/alecthomas/kong v0.8.0
 	github.com/magefile/mage v1.15.0
 	github.com/stretchr/testify v1.8.4
 	goa.design/clue v0.18.0
