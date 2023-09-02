@@ -6,13 +6,13 @@ require (
 	github.com/alecthomas/kong v0.8.0
 	github.com/magefile/mage v1.15.0
 	github.com/stretchr/testify v1.8.4
-	goa.design/clue v0.18.1
+	goa.design/clue v0.18.2
 	goa.design/goa/v3 v3.12.4
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/aws/smithy-go v1.13.5 // indirect
+	github.com/aws/smithy-go v1.14.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dimfeld/httptreemux/v5 v5.5.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
