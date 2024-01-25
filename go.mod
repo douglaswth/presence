@@ -9,7 +9,7 @@ require (
 	github.com/magefile/mage v1.15.0
 	github.com/stretchr/testify v1.8.4
 	goa.design/clue v1.0.2
-	goa.design/goa/v3 v3.14.4
+	goa.design/goa/v3 v3.14.6
 	gopkg.in/yaml.v3 v3.0.1
 )
 
