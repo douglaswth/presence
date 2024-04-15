@@ -7,7 +7,7 @@ toolchain go1.21.3
 require (
 	github.com/alecthomas/kong v0.8.1
 	github.com/magefile/mage v1.15.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	goa.design/clue v1.0.3
 	goa.design/goa/v3 v3.14.6
 	gopkg.in/yaml.v3 v3.0.1
