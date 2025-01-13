@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.22.5
 
 require (
-	github.com/alecthomas/kong v1.6.0
+	github.com/alecthomas/kong v1.6.1
 	github.com/magefile/mage v1.15.0
 	github.com/stretchr/testify v1.10.0
 	goa.design/clue v1.0.7
