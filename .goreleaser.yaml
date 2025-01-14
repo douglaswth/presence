@@ -1,3 +1,4 @@
+version: 2
 before:
   hooks:
     - go mod tidy
@@ -8,6 +9,12 @@ builds:
     goos:
       - freebsd
       - linux
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+      - riscv64
     main: ./cmd/presence
 archives:
   - format: tar.xz
