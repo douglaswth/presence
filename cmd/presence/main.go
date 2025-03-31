@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"runtime/debug"
+	"strings"
 
 	"github.com/alecthomas/kong"
 	"goa.design/clue/log"
@@ -34,7 +35,7 @@ func init() {
 	if version == "dev" {
 		info, ok := debug.ReadBuildInfo()
 		if ok {
-			version = info.Main.Version
+			version = strings.TrimPrefix(info.Main.Version, "v")
 		}
 	}
 }

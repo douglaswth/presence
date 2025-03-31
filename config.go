@@ -142,7 +142,7 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 	} else if !eventName.MatchString(c.IFTTT.Events.Present.Event) {
 		return nil, fmt.Errorf("invalid IFTTT present event name: %#v", c.IFTTT.Events.Present.Event)
 	}
-	log.Print(ctx, log.KV{K: "msg", V: "IFTTT present event"}, log.KV{K: "value", V: c.IFTTT.Events.Present},
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT present event"}, log.KV{K: "value", V: c.IFTTT.Events.Present.Event},
 		log.KV{K: "value1", V: c.IFTTT.Events.Present.Value1},
 		log.KV{K: "value2", V: c.IFTTT.Events.Present.Value2},
 		log.KV{K: "value3", V: c.IFTTT.Events.Present.Value3})
@@ -152,7 +152,7 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 	} else if !eventName.MatchString(c.IFTTT.Events.Absent.Event) {
 		return nil, fmt.Errorf("invalid IFTTT absent event name: %#v", c.IFTTT.Events.Absent.Event)
 	}
-	log.Print(ctx, log.KV{K: "msg", V: "IFTTT absent event"}, log.KV{K: "value", V: c.IFTTT.Events.Absent},
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT absent event"}, log.KV{K: "value", V: c.IFTTT.Events.Absent.Event},
 		log.KV{K: "value1", V: c.IFTTT.Events.Absent.Value1},
 		log.KV{K: "value2", V: c.IFTTT.Events.Absent.Value2},
 		log.KV{K: "value3", V: c.IFTTT.Events.Absent.Value3})
