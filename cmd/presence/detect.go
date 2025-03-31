@@ -32,7 +32,16 @@ func (d *Detect) Run(cli *CLI) error {
 		log.Fatal(ctx, err, log.KV{K: "msg", V: "error finding dependencies"})
 	}
 
-	client, err := ifttt.NewClient(http.DefaultClient, config.IFTTT.BaseURL, config.IFTTT.Key, config.IFTTT.Events.Present, config.IFTTT.Events.Absent, cli.Debug)
+	client, err := ifttt.NewClient(http.DefaultClient, config.IFTTT.BaseURL, config.IFTTT.Key,
+		config.IFTTT.Events.Present.Event, config.IFTTT.Events.Absent.Event, ifttt.Values{
+			Value1: config.IFTTT.Events.Present.Value1,
+			Value2: config.IFTTT.Events.Present.Value2,
+			Value3: config.IFTTT.Events.Present.Value3,
+		}, ifttt.Values{
+			Value1: config.IFTTT.Events.Absent.Value1,
+			Value2: config.IFTTT.Events.Absent.Value2,
+			Value3: config.IFTTT.Events.Absent.Value3,
+		}, cli.Debug)
 	if err != nil {
 		log.Fatal(ctx, err, log.KV{K: "msg", V: "error creating IFTTT client"})
 	}
@@ -86,7 +95,16 @@ func (d *Detect) Run(cli *CLI) error {
 			config, err = presence.ParseConfigWithContext(ctx, cli.Config, wNet)
 			if err != nil {
 				log.Error(ctx, err, log.KV{K: "msg", V: "error parsing config"}, log.KV{K: "config", V: cli.Config})
-			} else if client, err = ifttt.NewClient(http.DefaultClient, config.IFTTT.BaseURL, config.IFTTT.Key, config.IFTTT.Events.Present, config.IFTTT.Events.Absent, cli.Debug); err != nil {
+			} else if client, err = ifttt.NewClient(http.DefaultClient, config.IFTTT.BaseURL, config.IFTTT.Key,
+				config.IFTTT.Events.Present.Event, config.IFTTT.Events.Absent.Event, ifttt.Values{
+					Value1: config.IFTTT.Events.Present.Value1,
+					Value2: config.IFTTT.Events.Present.Value2,
+					Value3: config.IFTTT.Events.Present.Value3,
+				}, ifttt.Values{
+					Value1: config.IFTTT.Events.Absent.Value1,
+					Value2: config.IFTTT.Events.Absent.Value2,
+					Value3: config.IFTTT.Events.Absent.Value3,
+				}, cli.Debug); err != nil {
 				log.Error(ctx, err, log.KV{K: "msg", V: "error creating IFTTT client"})
 			} else {
 				arp.Count(config.PingCount)

@@ -51,12 +51,15 @@ func (d *detector) Detect(ctx context.Context) error {
 
 	log.Print(ctx, log.KV{K: "msg", V: "detected presence"}, log.KV{K: "present", V: d.state.Present()}, log.KV{K: "changed", V: d.state.Changed()})
 	if d.state.Changed() {
-		event, err := d.client.Trigger(ctx, d.state.Present())
+		event, values, err := d.client.Trigger(ctx, d.state.Present())
 		if err != nil {
 			d.state.Reset()
 			return err
 		}
-		log.Print(ctx, log.KV{K: "msg", V: "triggered IFTTT"}, log.KV{K: "event", V: event})
+		log.Print(ctx, log.KV{K: "msg", V: "triggered IFTTT"}, log.KV{K: "event", V: event},
+			log.KV{K: "value1", V: values.Value1},
+			log.KV{K: "value2", V: values.Value2},
+			log.KV{K: "value3", V: values.Value3})
 	}
 
 	return nil

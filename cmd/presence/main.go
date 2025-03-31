@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"runtime"
+	"runtime/debug"
 
 	"github.com/alecthomas/kong"
 	"goa.design/clue/log"
@@ -28,6 +29,15 @@ var (
 	date    = "unknown"
 	wNet    = wrap.NewNet()
 )
+
+func init() {
+	if version == "dev" {
+		info, ok := debug.ReadBuildInfo()
+		if ok {
+			version = info.Main.Version
+		}
+	}
+}
 
 func main() {
 	cli := &CLI{}

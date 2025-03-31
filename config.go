@@ -32,8 +32,15 @@ type (
 	}
 
 	Events struct {
-		Present string `yaml:"present"`
-		Absent  string `yaml:"absent"`
+		Present Event `yaml:"present"`
+		Absent  Event `yaml:"absent"`
+	}
+
+	Event struct {
+		Event  string `yaml:"event"`
+		Value1 string `yaml:"value1"`
+		Value2 string `yaml:"value2"`
+		Value3 string `yaml:"value3"`
 	}
 )
 
@@ -56,7 +63,7 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	d := yaml.NewDecoder(f)
 	d.KnownFields(true)
@@ -130,19 +137,25 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 	}
 	log.Print(ctx, log.KV{K: "msg", V: "IFTTT key"}, log.KV{K: "value", V: strings.Repeat("*", len(c.IFTTT.Key))})
 
-	if c.IFTTT.Events.Present == "" {
-		c.IFTTT.Events.Present = defaultPresentEvent
-	} else if !eventName.MatchString(c.IFTTT.Events.Present) {
-		return nil, fmt.Errorf("invalid IFTTT present event name: %#v", c.IFTTT.Events.Present)
+	if c.IFTTT.Events.Present.Event == "" {
+		c.IFTTT.Events.Present.Event = defaultPresentEvent
+	} else if !eventName.MatchString(c.IFTTT.Events.Present.Event) {
+		return nil, fmt.Errorf("invalid IFTTT present event name: %#v", c.IFTTT.Events.Present.Event)
 	}
-	log.Print(ctx, log.KV{K: "msg", V: "IFTTT present event"}, log.KV{K: "value", V: c.IFTTT.Events.Present})
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT present event"}, log.KV{K: "value", V: c.IFTTT.Events.Present},
+		log.KV{K: "value1", V: c.IFTTT.Events.Present.Value1},
+		log.KV{K: "value2", V: c.IFTTT.Events.Present.Value2},
+		log.KV{K: "value3", V: c.IFTTT.Events.Present.Value3})
 
-	if c.IFTTT.Events.Absent == "" {
-		c.IFTTT.Events.Absent = defaultAbsentEvent
-	} else if !eventName.MatchString(c.IFTTT.Events.Absent) {
-		return nil, fmt.Errorf("invalid IFTTT absent event name: %#v", c.IFTTT.Events.Absent)
+	if c.IFTTT.Events.Absent.Event == "" {
+		c.IFTTT.Events.Absent.Event = defaultAbsentEvent
+	} else if !eventName.MatchString(c.IFTTT.Events.Absent.Event) {
+		return nil, fmt.Errorf("invalid IFTTT absent event name: %#v", c.IFTTT.Events.Absent.Event)
 	}
-	log.Print(ctx, log.KV{K: "msg", V: "IFTTT absent event"}, log.KV{K: "value", V: c.IFTTT.Events.Absent})
+	log.Print(ctx, log.KV{K: "msg", V: "IFTTT absent event"}, log.KV{K: "value", V: c.IFTTT.Events.Absent},
+		log.KV{K: "value1", V: c.IFTTT.Events.Absent.Value1},
+		log.KV{K: "value2", V: c.IFTTT.Events.Absent.Value2},
+		log.KV{K: "value3", V: c.IFTTT.Events.Absent.Value3})
 
 	return c, nil
 }

@@ -8,5 +8,13 @@ ifttt:
   base_url: https://example.com
   key: abcdef123456
   events:
-    present: event_presence_detected
-    absent: event_absence_detected
+    present:
+      event: event_presence_detected
+      value1: event_presence_detected_value1
+      value2: event_presence_detected_value2
+      value3: event_presence_detected_value3
+    absent:
+      event: event_absence_detected
+      value1: event_absence_detected_value1
+      value2: event_absence_detected_value2
+      value3: event_absence_detected_value3

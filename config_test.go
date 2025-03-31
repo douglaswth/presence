@@ -41,8 +41,18 @@ func TestParseConfig(t *testing.T) {
 					BaseURL: "https://example.com",
 					Key:     "abcdef123456",
 					Events: Events{
-						Present: "event_presence_detected",
-						Absent:  "event_absence_detected",
+						Present: Event{
+							Event:  "event_presence_detected",
+							Value1: "event_presence_detected_value1",
+							Value2: "event_presence_detected_value2",
+							Value3: "event_presence_detected_value3",
+						},
+						Absent: Event{
+							Event:  "event_absence_detected",
+							Value1: "event_absence_detected_value1",
+							Value2: "event_absence_detected_value2",
+							Value3: "event_absence_detected_value3",
+						},
 					},
 				},
 			},
@@ -64,8 +74,8 @@ func TestParseConfig(t *testing.T) {
 					BaseURL: defaultBaseURL,
 					Key:     "xyz7890!@#",
 					Events: Events{
-						Present: defaultPresentEvent,
-						Absent:  defaultAbsentEvent,
+						Present: Event{Event: defaultPresentEvent},
+						Absent:  Event{Event: defaultAbsentEvent},
 					},
 				},
 			},

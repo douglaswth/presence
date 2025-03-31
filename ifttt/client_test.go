@@ -2,8 +2,10 @@ package ifttt
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,13 +13,27 @@ import (
 )
 
 const (
+	baseURL      = "https://maker.ifttt.com"
 	presentEvent = "presence_detected"
 	absentEvent  = "absence_detected"
 )
 
+var (
+	presentValues = Values{
+		Value1: "presence_detected_value1",
+		Value2: "presence_detected_value2",
+		Value3: "presence_detected_value3",
+	}
+	absentValues = Values{
+		Value1: "absence_detected_value1",
+		Value2: "absence_detected_value2",
+		Value3: "absence_detected_value3",
+	}
+)
+
 func TestNewClient(t *testing.T) {
 	t.Run("invalid base URL", func(t *testing.T) {
-		_, err := NewClient(http.DefaultClient, "%", "key", presentEvent, absentEvent, false)
+		_, err := NewClient(http.DefaultClient, "%", "key", presentEvent, absentEvent, presentValues, absentValues, false)
 		assert.ErrorContains(t, err, `parse "%": invalid URL escape "%"`)
 	})
 }
@@ -29,19 +45,29 @@ func TestClient_Trigger(t *testing.T) {
 		name, key, event, err string
 		ctx                   context.Context
 		present, noDebug      bool
+		values                Values
 		handler               func(t *testing.T) http.HandlerFunc
 	}{
 		{
-			name:    "preset",
+			name:    "present",
 			key:     "key",
 			ctx:     ctx,
 			present: true,
+			values:  presentValues,
 			handler: func(t *testing.T) http.HandlerFunc {
 				return func(w http.ResponseWriter, r *http.Request) {
 					assert := assert.New(t)
 
 					assert.Equal(http.MethodPost, r.Method)
 					assert.Equal("/trigger/"+presentEvent+"/with/key/key", r.URL.Path)
+
+					body, err := io.ReadAll(r.Body)
+					assert.NoError(err)
+					assert.JSONEq(`{
+						"value1": "presence_detected_value1",
+						"value2": "presence_detected_value2",
+						"value3": "presence_detected_value3"
+					}`, string(body))
 				}
 			},
 			event: presentEvent,
@@ -51,12 +77,21 @@ func TestClient_Trigger(t *testing.T) {
 			key:     "key",
 			ctx:     ctx,
 			present: false,
+			values:  absentValues,
 			handler: func(t *testing.T) http.HandlerFunc {
 				return func(w http.ResponseWriter, r *http.Request) {
 					assert := assert.New(t)
 
 					assert.Equal(http.MethodPost, r.Method)
 					assert.Equal("/trigger/"+absentEvent+"/with/key/key", r.URL.Path)
+
+					body, err := io.ReadAll(r.Body)
+					assert.NoError(err)
+					assert.JSONEq(`{
+						"value1": "absence_detected_value1",
+						"value2": "absence_detected_value2",
+						"value3": "absence_detected_value3"
+					}`, string(body))
 				}
 			},
 			event: absentEvent,
@@ -88,10 +123,10 @@ func TestClient_Trigger(t *testing.T) {
 						assert.FailNow("error hijacking")
 					}
 
-					conn.Close()
+					assert.NoError(conn.Close())
 				}
 			},
-			err: "EOF",
+			err: `Post "` + baseURL + `/trigger/` + absentEvent + `/with/key/key": EOF`,
 		},
 		{
 			name: "unauthorized",
@@ -142,15 +177,16 @@ func TestClient_Trigger(t *testing.T) {
 			ts := httptest.NewTLSServer(tc.handler(t))
 			defer ts.Close()
 
-			c, err := NewClient(ts.Client(), ts.URL, tc.key, presentEvent, absentEvent, !tc.noDebug)
+			c, err := NewClient(ts.Client(), ts.URL, tc.key, presentEvent, absentEvent, presentValues, absentValues, !tc.noDebug)
 			assert.NoError(err)
 
-			event, err := c.Trigger(tc.ctx, tc.present)
+			event, values, err := c.Trigger(tc.ctx, tc.present)
 			if tc.err != "" {
-				assert.ErrorContains(err, tc.err)
-			} else {
-				assert.NoError(err)
+				tc.err = strings.ReplaceAll(tc.err, baseURL, ts.URL)
+				assert.EqualError(err, tc.err)
+			} else if assert.NoError(err) {
 				assert.Equal(tc.event, event)
+				assert.Equal(&tc.values, values)
 			}
 		})
 	}
