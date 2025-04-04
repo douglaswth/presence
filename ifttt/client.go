@@ -82,6 +82,7 @@ func (c *client) Trigger(ctx context.Context, present bool) (string, *Values, er
 	if err != nil {
 		return "", nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	doer := goahttp.Doer(c.c)
 	if c.debug {

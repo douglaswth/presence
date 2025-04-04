@@ -60,6 +60,7 @@ func TestClient_Trigger(t *testing.T) {
 
 					assert.Equal(http.MethodPost, r.Method)
 					assert.Equal("/trigger/"+presentEvent+"/with/key/key", r.URL.Path)
+					assert.Equal("application/json", r.Header.Get("Content-Type"))
 
 					body, err := io.ReadAll(r.Body)
 					assert.NoError(err)
@@ -84,6 +85,7 @@ func TestClient_Trigger(t *testing.T) {
 
 					assert.Equal(http.MethodPost, r.Method)
 					assert.Equal("/trigger/"+absentEvent+"/with/key/key", r.URL.Path)
+					assert.Equal("application/json", r.Header.Get("Content-Type"))
 
 					body, err := io.ReadAll(r.Body)
 					assert.NoError(err)
