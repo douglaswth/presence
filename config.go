@@ -18,11 +18,15 @@ import (
 
 type (
 	Config struct {
-		Interval     time.Duration `yaml:"interval"`
-		Interfaces   []string      `yaml:"interfaces"`
-		MACAddresses []string      `yaml:"mac_addresses"`
-		PingCount    uint          `yaml:"ping_count"`
-		IFTTT        IFTTT         `yaml:"ifttt"`
+		Interval time.Duration `yaml:"interval"`
+		// RetriggerAfter is the duration after a state change to trigger
+		// an IFTTT webhook if no further changes occur. A zero value
+		// disables the delayed trigger (default behavior).
+		RetriggerAfter time.Duration `yaml:"retrigger_after"`
+		Interfaces     []string      `yaml:"interfaces"`
+		MACAddresses   []string      `yaml:"mac_addresses"`
+		PingCount      uint          `yaml:"ping_count"`
+		IFTTT          IFTTT         `yaml:"ifttt"`
 	}
 
 	IFTTT struct {
@@ -80,6 +84,12 @@ func ParseConfigWithContext(ctx context.Context, name string, wNet wrap.Net) (*C
 		c.Interval = 30 * time.Second
 	}
 	log.Print(ctx, log.KV{K: "msg", V: "interval"}, log.KV{K: "value", V: c.Interval})
+
+	if c.RetriggerAfter < 0 {
+		return nil, fmt.Errorf("negative retrigger_after (%v)", c.RetriggerAfter)
+	}
+	// RetriggerAfter default is zero (disabled)
+	log.Print(ctx, log.KV{K: "msg", V: "retrigger after"}, log.KV{K: "value", V: c.RetriggerAfter})
 
 	if len(c.Interfaces) == 0 {
 		ifs, err := wNet.Interfaces()

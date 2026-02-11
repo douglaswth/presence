@@ -2,6 +2,7 @@ package presence
 
 import (
 	"context"
+	"time"
 
 	"goa.design/clue/log"
 
@@ -23,6 +24,7 @@ type (
 		state      neighbors.State
 		states     neighbors.HardwareAddrStates
 		client     ifttt.Client
+		lastChange time.Time
 	}
 )
 
@@ -51,6 +53,10 @@ func (d *detector) Detect(ctx context.Context) error {
 
 	log.Print(ctx, log.KV{K: "msg", V: "detected presence"}, log.KV{K: "present", V: d.state.Present()}, log.KV{K: "changed", V: d.state.Changed()})
 	if d.state.Changed() {
+		if d.config.RetriggerAfter > 0 {
+			d.lastChange = time.Now()
+		}
+
 		event, values, err := d.client.Trigger(ctx, d.state.Present())
 		if err != nil {
 			d.state.Reset()
@@ -60,6 +66,21 @@ func (d *detector) Detect(ctx context.Context) error {
 			log.KV{K: "value1", V: values.Value1},
 			log.KV{K: "value2", V: values.Value2},
 			log.KV{K: "value3", V: values.Value3})
+		return nil
+	}
+
+	if d.config.RetriggerAfter > 0 && !d.lastChange.IsZero() {
+		if time.Since(d.lastChange) >= d.config.RetriggerAfter {
+			event, values, err := d.client.Trigger(ctx, d.state.Present())
+			if err != nil {
+				return err
+			}
+			d.lastChange = time.Now()
+			log.Print(ctx, log.KV{K: "msg", V: "triggered IFTTT (retrigger-after)"}, log.KV{K: "event", V: event},
+				log.KV{K: "value1", V: values.Value1},
+				log.KV{K: "value2", V: values.Value2},
+				log.KV{K: "value3", V: values.Value3})
+		}
 	}
 
 	return nil

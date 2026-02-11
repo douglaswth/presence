@@ -33,10 +33,11 @@ func TestParseConfig(t *testing.T) {
 				})
 			},
 			config: &Config{
-				Interval:     1 * time.Minute,
-				Interfaces:   []string{"eth0", "eth1"},
-				MACAddresses: []string{"00:00:00:00:00:0a", "00:00:00:00:00:0b"},
-				PingCount:    5,
+				Interval:       1 * time.Minute,
+				RetriggerAfter: 24 * time.Hour,
+				Interfaces:     []string{"eth0", "eth1"},
+				MACAddresses:   []string{"00:00:00:00:00:0a", "00:00:00:00:00:0b"},
+				PingCount:      5,
 				IFTTT: IFTTT{
 					BaseURL: "https://example.com",
 					Key:     "abcdef123456",
@@ -66,10 +67,11 @@ func TestParseConfig(t *testing.T) {
 				})
 			},
 			config: &Config{
-				Interval:     30 * time.Second,
-				Interfaces:   []string{"eth0", "eth1", "lo"},
-				MACAddresses: []string{"00:00:00:00:00:01", "00:00:00:00:00:02"},
-				PingCount:    1,
+				Interval:       30 * time.Second,
+				RetriggerAfter: 0,
+				Interfaces:     []string{"eth0", "eth1", "lo"},
+				MACAddresses:   []string{"00:00:00:00:00:01", "00:00:00:00:00:02"},
+				PingCount:      1,
 				IFTTT: IFTTT{
 					BaseURL: defaultBaseURL,
 					Key:     "xyz7890!@#",
@@ -104,6 +106,11 @@ func TestParseConfig(t *testing.T) {
 			name: "negative interval",
 			file: "negative_interval.yml",
 			err:  "negative interval (-1ns)",
+		},
+		{
+			name: "negative retrigger_after",
+			file: "negative_retrigger_after.yml",
+			err:  "negative retrigger_after (-1ns)",
 		},
 		{
 			name: "error listing interfaces",
@@ -195,8 +202,6 @@ func TestParseConfig(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		tc := tc
-
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
