@@ -13,7 +13,7 @@ var (
 
 // Generate generates mock implementations of interfaces.
 func Generate() (err error) {
-	return sh.RunV("go", "tool", "cmg", "gen", "./...")
+	return sh.RunV("go", "tool", "cmg", "gen", "-testify", "./...")
 }
 
 // Build builds the binaries.
