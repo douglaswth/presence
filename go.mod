@@ -7,7 +7,7 @@ require (
 	github.com/magefile/mage v1.17.0
 	github.com/stretchr/testify v1.11.1
 	goa.design/clue v1.2.5
-	goa.design/goa/v3 v3.25.3
+	goa.design/goa/v3 v3.26.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -31,7 +31,7 @@ require (
 	golang.org/x/text v0.34.0 // indirect
 	golang.org/x/tools v0.42.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260217215200-42d3e9bedb6d // indirect
-	google.golang.org/grpc v1.79.1 // indirect
+	google.golang.org/grpc v1.79.3 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
